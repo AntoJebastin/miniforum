@@ -16,8 +16,8 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "miniforum-super-secret-
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 72
 
-# Enable CORS for React frontend (Vite port 5173 or any origin in dev)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+# Enable CORS for React frontend (Vite port 5173, Vercel, Netlify, or any origin)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Ensure database is created and seeded on startup
 init_db()
@@ -650,7 +650,16 @@ def get_trending():
 # Root / Health Check
 # ============================================================================
 
-@app.route("/api/health", methods=["GET"])
+@app.route("/", methods=["GET", "HEAD"])
+def root():
+    return jsonify({
+        "status": "online",
+        "service": "MiniForum REST API",
+        "version": "1.0.0",
+        "health": "/api/health"
+    }), 200
+
+@app.route("/api/health", methods=["GET", "HEAD"])
 def health():
     return jsonify({
         "status": "online",
@@ -660,5 +669,7 @@ def health():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    print(f"MiniForum API server running on http://127.0.0.1:{port}")
-    app.run(host="127.0.0.1", port=port, debug=True)
+    host = os.environ.get("HOST", "0.0.0.0")
+    debug = os.environ.get("FLASK_ENV") == "development"
+    print(f"MiniForum API server running on http://{host}:{port}")
+    app.run(host=host, port=port, debug=debug)
