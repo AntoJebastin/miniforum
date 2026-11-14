@@ -1,5 +1,5 @@
 -- ============================================================================
--- Supabase (PostgreSQL) Schema & Sample Data for MiniForum
+-- Supabase (PostgreSQL) Schema & Policies for MiniForum
 -- Run this script inside the Supabase SQL Editor (Dashboard > SQL Editor)
 -- ============================================================================
 
@@ -55,13 +55,50 @@ CREATE TABLE IF NOT EXISTS public.votes (
     CONSTRAINT unique_post_user_vote UNIQUE (post_id, user_id)
 );
 
--- Create Indexes for fast querying
+-- Indexes for fast querying
 CREATE INDEX IF NOT EXISTS idx_posts_category ON public.posts(category_id);
 CREATE INDEX IF NOT EXISTS idx_posts_user ON public.posts(user_id);
 CREATE INDEX IF NOT EXISTS idx_comments_post ON public.comments(post_id);
 CREATE INDEX IF NOT EXISTS idx_votes_post ON public.votes(post_id);
 
--- 6. Insert Initial Categories
+-- 6. Row Level Security (RLS) Policies (Allow Public Read & Write)
+ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public categories are viewable" ON public.categories;
+CREATE POLICY "Public categories are viewable" ON public.categories FOR SELECT USING (true);
+
+ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public posts are viewable" ON public.posts;
+CREATE POLICY "Public posts are viewable" ON public.posts FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Anyone can insert posts" ON public.posts;
+CREATE POLICY "Anyone can insert posts" ON public.posts FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Anyone can update posts" ON public.posts;
+CREATE POLICY "Anyone can update posts" ON public.posts FOR UPDATE USING (true);
+DROP POLICY IF EXISTS "Anyone can delete posts" ON public.posts;
+CREATE POLICY "Anyone can delete posts" ON public.posts FOR DELETE USING (true);
+
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public comments are viewable" ON public.comments;
+CREATE POLICY "Public comments are viewable" ON public.comments FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Anyone can insert comments" ON public.comments;
+CREATE POLICY "Anyone can insert comments" ON public.comments FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Anyone can delete comments" ON public.comments;
+CREATE POLICY "Anyone can delete comments" ON public.comments FOR DELETE USING (true);
+
+ALTER TABLE public.votes ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public votes are viewable" ON public.votes;
+CREATE POLICY "Public votes are viewable" ON public.votes FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Anyone can insert votes" ON public.votes;
+CREATE POLICY "Anyone can insert votes" ON public.votes FOR ALL USING (true);
+
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public users are viewable" ON public.users;
+CREATE POLICY "Public users are viewable" ON public.users FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Anyone can register" ON public.users;
+CREATE POLICY "Anyone can register" ON public.users FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Anyone can update users" ON public.users;
+CREATE POLICY "Anyone can update users" ON public.users FOR UPDATE USING (true);
+
+-- 7. Insert Initial Categories
 INSERT INTO public.categories (name, slug, description, icon, color) VALUES
 ('Technology', 'technology', 'Latest trends in software, hardware, and artificial intelligence.', 'Cpu', 'orange'),
 ('Programming', 'programming', 'Discussions, tips, code snippets, and software engineering debates.', 'Code', 'blue'),
@@ -71,7 +108,7 @@ INSERT INTO public.categories (name, slug, description, icon, color) VALUES
 ('UI / UX Design', 'design', 'Interface aesthetics, user research, typography, and wireframes.', 'Palette', 'amber')
 ON CONFLICT (slug) DO NOTHING;
 
--- 7. Insert Demo User (password is 'password123', hashed with pbkdf2:sha256)
+-- 8. Insert Demo User
 INSERT INTO public.users (username, email, password_hash, avatar_url, bio) VALUES
 ('demo_user', 'demo@miniforum.com', 'pbkdf2:sha256:260000$rS0yL7Q6$e0176868846c24b1ff3941460c5c3632ab3d2780bb4c99738da75a61113824f9', 'https://api.dicebear.com/7.x/bottts/svg?seed=demo_user', 'MiniForum explorer!')
 ON CONFLICT (username) DO NOTHING;
