@@ -19,6 +19,15 @@ import {
   MessageSquare
 } from 'lucide-react';
 
+const INITIAL_CATEGORIES = [
+  { id: 1, name: 'Technology', slug: 'technology', icon: 'Cpu', color: 'orange', description: 'Latest trends in tech & AI', post_count: 0 },
+  { id: 2, name: 'Programming', slug: 'programming', icon: 'Code', color: 'blue', description: 'Coding & software development', post_count: 0 },
+  { id: 3, name: 'Web Development', slug: 'webdev', icon: 'Globe', color: 'emerald', description: 'Web frameworks & architectures', post_count: 0 },
+  { id: 4, name: 'Ask Reddit', slug: 'askreddit', icon: 'HelpCircle', color: 'purple', description: 'Community questions & advice', post_count: 0 },
+  { id: 5, name: 'Gaming', slug: 'gaming', icon: 'Gamepad2', color: 'rose', description: 'Games & consoles', post_count: 0 },
+  { id: 6, name: 'UI / UX Design', slug: 'design', icon: 'Palette', color: 'amber', description: 'Design systems & typography', post_count: 0 },
+];
+
 export default function App() {
   const { 
     user, 
@@ -29,7 +38,7 @@ export default function App() {
   } = useAuth();
 
   // Navigation and filter states
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(INITIAL_CATEGORIES);
   const [activeCategory, setActiveCategory] = useState(null);
   const [activeFeed, setActiveFeed] = useState('all'); // 'all', 'popular', 'latest'
   const [sortOption, setSortOption] = useState('popular'); // 'popular', 'latest', 'top'
