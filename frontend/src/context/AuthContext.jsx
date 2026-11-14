@@ -75,7 +75,14 @@ export function AuthProvider({ children }) {
       showToast(`Welcome back, u/${userData.username}!`);
       return { success: true };
     } catch (err) {
-      const errorMsg = err.response?.data?.error || 'Login failed. Please check credentials.';
+      let errorMsg = err.response?.data?.error;
+      if (!errorMsg) {
+        if (err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
+          errorMsg = 'Cannot connect to backend server. Make sure the Flask backend is running (python app.py).';
+        } else {
+          errorMsg = 'Login failed. Please check credentials.';
+        }
+      }
       return { success: false, error: errorMsg };
     }
   };
@@ -92,7 +99,14 @@ export function AuthProvider({ children }) {
       showToast(`Account created! Welcome to MiniForum, u/${userData.username}!`);
       return { success: true };
     } catch (err) {
-      const errorMsg = err.response?.data?.error || 'Registration failed. Please try again.';
+      let errorMsg = err.response?.data?.error;
+      if (!errorMsg) {
+        if (err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
+          errorMsg = 'Cannot connect to backend server. Make sure the Flask backend is running (python app.py).';
+        } else {
+          errorMsg = 'Registration failed. Please try again.';
+        }
+      }
       return { success: false, error: errorMsg };
     }
   };
